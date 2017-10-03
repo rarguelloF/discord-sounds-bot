@@ -1,0 +1,10 @@
+token: your-bot-token-here
+clientId: your-client-id-here
+sounds: /var/sounds
+deleteMessages: true
+users:
+  remove:
+    - User1#1234
+  rename:
+    - User1#1234
+    - User2#5678
