@@ -1,14 +1,13 @@
-const Discord = require('discord.js');
-const commands = require('./commands');
-const utils = require('./utils');
-
+const Discord = require("discord.js");
+const commands = require("./commands");
+const utils = require("./utils");
 
 class SoundsBot extends Discord.Client {
   constructor(config) {
     super();
 
     this.config = {
-      prefix: '!',
+      prefix: "!",
       deleteMessages: false,
       ...config,
       users: {
@@ -19,12 +18,12 @@ class SoundsBot extends Discord.Client {
         ignore: [],
         ...(config.users || {}),
       },
-    }
+    };
 
     this.queue = [];
 
-    this.on('ready', () => null);
-    this.on('message', this.messageListener);
+    this.on("ready", () => null);
+    this.on("message", this.messageListener);
   }
 
   messageListener(message) {
@@ -41,41 +40,54 @@ class SoundsBot extends Discord.Client {
   }
 
   handle(message) {
-    const [command, ...input] = message.content.split(' ');
+    const [command, ...input] = message.content.split(" ");
 
     switch (command) {
-      case 'help': {
+      case "help": {
         return message.author.send(commands.help());
       }
-      case 'sounds': {
+      case "sounds": {
         const soundsLib = utils.getSoundLibrary(this.config.sounds);
-        const category = input.join('-');
+        const category = input.join("-");
         const responses = commands.sounds(soundsLib, category);
 
-        return message.author.createDM()
-          .then(channel => responses.forEach(
-            resp => channel.send(resp)
-              .catch(console.error)
-          ));
+        return message.author
+          .createDM()
+          .then((channel) =>
+            responses.forEach((resp) => channel.send(resp).catch(console.error))
+          );
       }
-      case 'add':
+      case "add":
         if (message.attachments) {
-          const userAllowed = utils.isUserAllowed(message.author.tag, this.config.users.add);
+          const userAllowed = utils.isUserAllowed(
+            message.author.tag,
+            this.config.users.add
+          );
 
           if (userAllowed) {
             const soundsLib = utils.getSoundLibrary(this.config.sounds);
-            commands.add(message.attachments, this.config.sounds, soundsLib, message.channel);
+            commands.add(
+              message.attachments,
+              this.config.sounds,
+              soundsLib,
+              message.channel
+            );
           } else {
-            message.reply('You are not allowed to add files, sorry :(');
+            message.reply("You are not allowed to add files, sorry :(");
           }
         }
         break;
-      case 'set': {
-        const userAllowed = utils.isUserAllowed(message.author.tag, this.config.users.set);
+      case "set": {
+        const userAllowed = utils.isUserAllowed(
+          message.author.tag,
+          this.config.users.set
+        );
         const [sound, param, ...value] = input;
 
         if (!sound || !param || value.length === 0) {
-          message.reply('Wrong number of parameters. Usage: !set <sound> <param> <value>');
+          message.reply(
+            "Wrong number of parameters. Usage: !set <sound> <param> <value>"
+          );
           return;
         }
 
@@ -85,49 +97,66 @@ class SoundsBot extends Discord.Client {
           commands.set(
             sound.toLowerCase(),
             param.toLowerCase(),
-            value.join(' '),
+            value.join(" "),
             this.config.sounds,
             soundsLib,
             message.channel
           );
         } else {
-          message.reply('You are not allowed to add files, sorry :(');
+          message.reply("You are not allowed to add files, sorry :(");
         }
 
         return;
       }
-      case 'rename': {
+      case "rename": {
         const soundsLib = utils.getSoundLibrary(this.config.sounds);
-        const userAllowed = utils.isUserAllowed(message.author.tag, this.config.users.rename);
+        const userAllowed = utils.isUserAllowed(
+          message.author.tag,
+          this.config.users.rename
+        );
 
         const [source, dest, ..._remains] = input;
 
         if (!source || !dest) {
-          message.reply('Usage: !rename <source> <dest>');
+          message.reply("Usage: !rename <source> <dest>");
           return;
         }
 
         if (userAllowed) {
-          commands.rename(source, dest, this.config.sounds, soundsLib, message.channel);
+          commands.rename(
+            source,
+            dest,
+            this.config.sounds,
+            soundsLib,
+            message.channel
+          );
         } else {
-          message.reply('You are not allowed to rename files, sorry :(');
+          message.reply("You are not allowed to rename files, sorry :(");
         }
         break;
       }
-      case 'remove': {
+      case "remove": {
         const soundsLib = utils.getSoundLibrary(this.config.sounds);
-        const userAllowed = utils.isUserAllowed(message.author.tag, this.config.users.remove);
+        const userAllowed = utils.isUserAllowed(
+          message.author.tag,
+          this.config.users.remove
+        );
         const [sound, ..._remains] = input;
 
         if (!sound) {
-          message.reply('Usage: !remove <sound>');
+          message.reply("Usage: !remove <sound>");
           return;
         }
 
         if (userAllowed) {
-          commands.remove(sound, this.config.sounds, soundsLib, message.channel)
+          commands.remove(
+            sound,
+            this.config.sounds,
+            soundsLib,
+            message.channel
+          );
         } else {
-          message.reply('You are not allowed to remove files, sorry :(');
+          message.reply("You are not allowed to remove files, sorry :(");
         }
         break;
       }
@@ -138,24 +167,24 @@ class SoundsBot extends Discord.Client {
   }
 
   handleSoundCommands(message) {
-    const [command, ...input] = message.content.split(' ');
+    const [command, ...input] = message.content.split(" ");
 
     const soundsLib = utils.getSoundLibrary(this.config.sounds);
-    const voiceChannel = message.member.voiceChannel;
+    const voiceChannel = message.member.voice.channel;
 
     if (voiceChannel === undefined) {
-      message.reply('Join a voice channel first!');
+      message.reply("Join a voice channel first!");
       return;
     }
 
     switch (command) {
-      case 'stop': {
+      case "stop": {
         voiceChannel.leave();
         this.queue = [];
         break;
       }
-      case 'random': {
-        const category = input.join('-');
+      case "random": {
+        const category = input.join("-");
         const sound = commands.random(soundsLib, category);
 
         if (sound) {
@@ -180,30 +209,33 @@ class SoundsBot extends Discord.Client {
   }
 
   _currentlyPlaying() {
-    return this.voiceConnections.array().length > 0;
+    return this.voice.connections.array().length > 0;
   }
 
   playSoundQueue() {
     const nextSound = this.queue.shift();
     const soundFile = nextSound.path;
-    const voiceChannel = this.channels.get(nextSound.channel);
+    const voiceChannel = this.channels.cache.get(nextSound.channel);
 
-    voiceChannel.join().then((connection) => {
-      const dispatcher = connection.playFile(soundFile);
-      dispatcher.on('end', () => {
-        if (this.config.deleteMessages === true) nextSound.message.delete();
+    voiceChannel
+      .join()
+      .then((connection) => {
+        const dispatcher = connection.play(soundFile);
+        dispatcher.on("finish", () => {
+          if (this.config.deleteMessages === true) nextSound.message.delete();
 
-        if (this.queue.length === 0) {
-          connection.disconnect();
-          return;
-        }
+          if (this.queue.length === 0) {
+            connection.disconnect();
+            return;
+          }
 
-        this.playSoundQueue();
+          this.playSoundQueue();
+        });
+      })
+      .catch((error) => {
+        console.error("Error occured!");
+        console.error(error);
       });
-    }).catch((error) => {
-      console.error('Error occured!');
-      console.error(error);
-    });
   }
 }
 

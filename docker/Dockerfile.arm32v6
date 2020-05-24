@@ -1,0 +1,15 @@
+FROM arm32v6/node:alpine
+
+ENV NODE_ENV=production
+
+RUN apk add --update --no-cache \
+  build-base \
+  python3 \
+  ffmpeg
+
+COPY . /opt/app
+WORKDIR /opt/app
+
+RUN npm install
+
+ENTRYPOINT [ "npm", "start" ]

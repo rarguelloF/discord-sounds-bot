@@ -5,9 +5,10 @@ docker: docker-build docker-push
 .PHONY: docker
 
 docker-build:
-	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	docker build -f docker/Dockerfile.arm32v6 -t ${DOCKER_IMAGE}:${DOCKER_TAG}-arm32v6 .
+	docker build -f docker/Dockerfile -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 .PHONY: docker-build
 
 docker-push:
-	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	docker push ${DOCKER_IMAGE}
 .PHONY: docker-push
