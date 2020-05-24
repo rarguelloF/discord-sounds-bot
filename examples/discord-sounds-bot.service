@@ -1,0 +1,18 @@
+[Unit]
+Description=Discord Sounds Bot
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop discord_sounds_bot
+ExecStartPre=/usr/bin/docker pull rarguellof/discord-sounds-bot:v0.1.0
+ExecStart=/usr/bin/docker run --name=discord_sounds_bot \
+                              --net=host --restart=no \
+                              --volume='/var/sounds:./sounds' \
+                              --volume='/etc/discord-sounds-bot/config.yml:./config.yml' \
+                              rarguellof/discord-sounds-bot:v0.1.0 -c config.yml
+
+[Install]
+WantedBy=multi-user.target

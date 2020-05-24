@@ -1,6 +1,6 @@
 token: your-bot-token-here
 clientId: your-client-id-here
-sounds: /var/sounds
+sounds: ./sounds
 deleteMessages: true
 users:
   remove:
